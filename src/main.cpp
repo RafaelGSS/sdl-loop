@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SDL2/SDL.h>
+#include "./constants.h"
 
 bool game_is_running = false;
 SDL_Window* window = NULL;
