@@ -1,6 +1,6 @@
 CXX ?= g++
 LDFLAGS = -Wall
-LDLIBS = -lSDL2
+LDLIBS = -lSDL2 -lSDL2_ttf
 
 TARGET = $(notdir $(basename $<))
 SRC_DIRS ?= ./src

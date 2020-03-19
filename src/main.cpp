@@ -1,10 +1,12 @@
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "./constants.h"
 
 bool game_is_running = false;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
+TTF_Font* font = NULL;
 
 int last_frame_time = 0;
 
@@ -20,6 +22,11 @@ struct game_object {
 bool initialize_window() {
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
     std::cout << "Error initializing SDL." << std::endl;
+    return false;
+  }
+
+  if (TTF_Init() != 0) {
+    std::cout << "Error initializing TTF." << std::endl;
     return false;
   }
 
@@ -85,6 +92,12 @@ void setup() {
   paddle.y = WINDOW_HEIGHT - 40;
   paddle.vel_x = 0;
   paddle.vel_y = 0;
+
+  font = TTF_OpenFont("/home/rafaelgss/repos/game/sdl-c/src/res/zorque.ttf", 70);
+  if (font == NULL) {
+    std::cout << "Error font not loaded " << TTF_GetError() << std::endl;
+    exit(1);
+  }
 }
 
 void update() {
@@ -120,6 +133,19 @@ void update() {
   paddle.y += paddle.vel_y * delta_time;
 }
 
+void render_score() {
+  SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Score", { 255, 255, 255 });
+  SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, textSurface);
+  SDL_Rect score_rect = {
+    (int)((WINDOW_WIDTH / 2) - (paddle.width / 2)),
+    40,
+    300,
+    100
+  };
+
+  SDL_RenderCopy(renderer, text, NULL, &score_rect);
+}
+
 void render() {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
@@ -144,10 +170,14 @@ void render() {
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_RenderFillRect(renderer, &paddle_rect);
 
+  render_score();
+
   SDL_RenderPresent(renderer);
 }
 
 void destroy_window() {
+  TTF_CloseFont(font);
+  TTF_Quit();
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
