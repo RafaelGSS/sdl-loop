@@ -7,6 +7,7 @@ bool game_is_running = false;
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 TTF_Font* font = NULL;
+unsigned int score = 0;
 
 int last_frame_time = 0;
 
@@ -86,7 +87,7 @@ void setup() {
   ball.vel_x = 300;
   ball.vel_y = 300;
 
-  paddle.width = 100; 
+  paddle.width = 100;
   paddle.height = 20;
   paddle.x = (WINDOW_WIDTH / 2) - (paddle.width / 2);
   paddle.y = WINDOW_HEIGHT - 40;
@@ -117,8 +118,10 @@ void update() {
     ball.vel_y = -ball.vel_y;
 
   // Check for ball collision with the paddle
-  if (ball.y + ball.height >= paddle.y && ball.x + ball.width > paddle.x && ball.x < paddle.x + paddle.width)
+  if (ball.y + ball.height >= paddle.y && ball.x + ball.width > paddle.x && ball.x < paddle.x + paddle.width) {
     ball.vel_y = -ball.vel_y;
+    score++;
+  }
 
   // Check for game over
   if (ball.y + ball.height > WINDOW_HEIGHT)
@@ -131,16 +134,24 @@ void update() {
   // update paddle position
   paddle.x += paddle.vel_x * delta_time;
   paddle.y += paddle.vel_y * delta_time;
+
+  if (paddle.x + paddle.width > WINDOW_WIDTH) {
+    paddle.x = WINDOW_WIDTH - paddle.width;
+  } else if (paddle.x < 0) {
+    paddle.x = 0;
+  }
+
 }
 
 void render_score() {
-  SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Score", { 255, 255, 255 });
-  SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, textSurface);
+  std::string score_text = "Score: " + std::to_string(score);
+  SDL_Surface* text_surface = TTF_RenderText_Solid(font, score_text.c_str(), { 255, 255, 255 });
+  SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, text_surface);
   SDL_Rect score_rect = {
-    (int)((WINDOW_WIDTH / 2) - (paddle.width / 2)),
+    (int)((WINDOW_WIDTH / 2) - 100 / 2),
     40,
-    300,
-    100
+    100,
+    50
   };
 
   SDL_RenderCopy(renderer, text, NULL, &score_rect);
