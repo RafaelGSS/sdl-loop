@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include "./constants.h"
@@ -37,7 +38,7 @@ bool initialize_window() {
       SDL_WINDOWPOS_CENTERED,
       WINDOW_WIDTH,
       WINDOW_HEIGHT,
-      SDL_WINDOW_BORDERLESS
+      SDL_WINDOW_MAXIMIZED
   );
 
   if (!window) {
@@ -143,35 +144,35 @@ void update() {
 
 }
 
-void render_score() {
-  std::string score_text = "Score: " + std::to_string(score);
-  SDL_Surface* text_surface = TTF_RenderText_Solid(font, score_text.c_str(), { 255, 255, 255 });
-  SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, text_surface);
-  SDL_Rect score_rect = {
-    (int)((WINDOW_WIDTH / 2) - 100 / 2),
-    40,
-    100,
-    50
-  };
+void render_text(std::string text, SDL_Rect text_rect) {
+    SDL_Surface* text_surface = TTF_RenderText_Solid(font, text.c_str(), { 255, 255, 255 });
+    SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
 
-  SDL_RenderCopy(renderer, text, NULL, &score_rect);
+    SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
 }
 
-void render() {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
-
-  // Draw a rectangle
-  SDL_Rect ball_rect = {
-    (int)ball.x,
-    (int)ball.y,
-    (int)ball.width,
-    (int)ball.height
+void render_ranking() {
+  std::map<std::string, unsigned int> players = {
+    { "You", score },
   };
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-  SDL_RenderFillRect(renderer, &ball_rect);
 
-  // Render the left paddle
+  int yposition_text = 20;
+  int height_text = 50;
+  int count = 0;
+  for (auto player : players) {
+    std::string text = std::to_string(count) + " - " + player.first + "\t\t" + std::to_string(score);
+    render_text(text, { WINDOW_WIDTH / 4, yposition_text, 300, height_text });
+    count++;
+    yposition_text += height_text + 10;
+  }
+}
+
+void render_score() {
+  std::string score_text = "Score: " + std::to_string(score);
+  render_text(score_text, { (int)((WINDOW_WIDTH / 2) - 100 / 2), 40, 100, 50 });
+}
+
+void render_paddle() {
   SDL_Rect paddle_rect = {
     (int)paddle.x,
     (int)paddle.y,
@@ -180,7 +181,25 @@ void render() {
   };
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_RenderFillRect(renderer, &paddle_rect);
+}
 
+void render_ball() {
+  SDL_Rect ball_rect = {
+    (int)ball.x,
+    (int)ball.y,
+    (int)ball.width,
+    (int)ball.height
+  };
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderFillRect(renderer, &ball_rect);
+}
+
+void render() {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
+  render_ball();
+  render_paddle();
   render_score();
 
   SDL_RenderPresent(renderer);
@@ -194,6 +213,11 @@ void destroy_window() {
   SDL_Quit();
 }
 
+void on_gameover() {
+  /* render_ranking(); */
+  destroy_window();
+}
+
 int main(int argc, char **argv) {
   game_is_running = initialize_window();
 
@@ -205,7 +229,6 @@ int main(int argc, char **argv) {
     render();
   }
 
-  destroy_window();
-
+  on_gameover();
   return 0;
 }
