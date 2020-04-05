@@ -5,7 +5,7 @@ LDLIBS = -lSDL2 -lSDL2_ttf
 TARGET = $(notdir $(basename $<))
 SRC_DIRS ?= ./src
 
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+SRCS := $(shell find $(SRC_DIRS) -name "*.cpp" -or -name "*.c" -or -name "*.s")
 OBJS := $(addsuffix .o,$(basename $(SRCS)))
 DEPS := $(OBJS:.o=.d)
 
@@ -16,7 +16,6 @@ FLAGS ?= $(INC_FLAGS) -MMD -MP
 
 app: $(OBJS)
 	$(CXX) $(LDFLAGS) $(OBJS) -o $@ $(LDLIBS)
-
 clean:
 	$(RM) $(TARGET) $(OBJS) $(DEPS)
 

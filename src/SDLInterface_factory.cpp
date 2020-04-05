@@ -8,11 +8,7 @@ SDLInterfaceFactory* SDLInterfaceFactory::instance() {
   return singleton;
 }
 
-SDL_Window* SDLInterfaceFactory::create_window(
-    GameObject obj,
-    const char* title = NULL,
-    Uint32 flags = SDL_WINDOW_MAXIMIZED
-    ) {
+SDL_Window* SDLInterfaceFactory::create_window(GameObject obj, const char* title, Uint32 flags) {
   return SDL_CreateWindow(title, obj.x, obj.y, obj.width, obj.height, flags);
 }
 

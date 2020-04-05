@@ -55,7 +55,6 @@ void Game::render_objects() {
   }
 }
 
-public:
 Game::Game(): last_frame_time(0), score(0), font(NULL), window(NULL), renderer(NULL) {}
 
 Game::~Game() {
